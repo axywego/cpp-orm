@@ -4,7 +4,6 @@
 #include "extractors.hpp"
 #include <string>
 #include <utility>
-#include <type_traits>
 
 namespace orm {
     template<typename T, typename... Traits>
@@ -68,10 +67,10 @@ namespace orm {
                 }
                 return "TEXT";
             }
-            else if constexpr (std::is_same_v<T, double) {
+            else if constexpr (std::is_same_v<T, double>) {
                 return "DOUBLE PRECISION";
             }
-            else if constexpr (std::is_same_v<T, bool) {
+            else if constexpr (std::is_same_v<T, bool>) {
                 return "BOOLEAN";
             }
             return "UNKNOWN";
