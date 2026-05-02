@@ -2,6 +2,8 @@
 
 #include "traits.hpp"
 #include "extractors.hpp"
+#include <string>
+#include <utility>
 
 namespace orm {
     template<typename T, typename... Traits>
@@ -38,7 +40,7 @@ namespace orm {
             return has_trait<PrimaryKey, Traits...>::value;
         }
 
-        static constexpr is_selectable() {
+        static constexpr bool is_selectable() {
             return extract_select<Traits...>::value
         }
 
