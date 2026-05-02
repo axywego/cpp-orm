@@ -4,6 +4,7 @@
 #include "extractors.hpp"
 #include <string>
 #include <utility>
+#include <type_traits>
 
 namespace orm {
     template<typename T, typename... Traits>
@@ -41,7 +42,7 @@ namespace orm {
         }
 
         static constexpr bool is_selectable() {
-            return extract_select<Traits...>::value
+            return extract_select<Traits...>::value;
         }
 
         static constexpr T get_default() {
@@ -78,7 +79,6 @@ namespace orm {
 
         static std::string column_sql() {
             std::string sql;
-            sql += column_name();
             sql += " ";
             sql += sql_type();
 
