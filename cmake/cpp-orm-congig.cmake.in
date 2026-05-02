@@ -1,5 +1,3 @@
 @PACKAGE_INIT@
-
-# Header-only библиотека - только include директории
 include("${CMAKE_CURRENT_LIST_DIR}/cpp-orm-targets.cmake")
 check_required_components(cpp-orm)
