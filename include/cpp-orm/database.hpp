@@ -1,26 +1,38 @@
 #pragma once
+#include <memory>
+#include <stdexcept>
 #include <pqxx/pqxx>
-#include <string>
-#include <vector>
 
 namespace orm {
 
-    class PostgresConnection {
+    class Database {
     private:
-        pqxx::connection conn;
+        static inline std::unique_ptr<pqxx::connection> conn = nullptr;
 
     public:
-        PostgresConnection(const std::string& conn_str) : conn(conn_str) {}
-        
+        static void connect(const std::string& conn_str) {
+            conn = std::make_unique<pqxx::connection>(conn_str);
+        }
+
+        static void disconnect() {
+            conn.reset();
+        }
+
         void execute(const std::string& sql) {
-            pqxx::work txn(conn);
+            if (!conn) {
+                throw std::runtime_error("Not connected to database!");
+            }
+            pqxx::work txn(*conn);
             txn.exec(sql);
             txn.commit();
         }
-        
+
         template<typename Entity>
         std::vector<Entity> query(const std::string& sql) {
-            pqxx::work txn(conn);
+            if (!conn) {
+                throw std::runtime_error("Not connected to database!");
+            }
+            pqxx::work txn(*conn);
             pqxx::result res = txn.exec(sql);
             
             std::vector<Entity> entities;
@@ -45,7 +57,7 @@ namespace orm {
             
             return entities;
         }
-        
+
     private:
         static void set_value(int& field, const pqxx::field& val) {
             field = val.as<int>();
@@ -66,6 +78,10 @@ namespace orm {
         static void set_value(bool& field, const pqxx::field& val) {
             field = val.as<bool>();
         }
+
+        static void set_value(float& field, const pqxx::field& val) {
+            field = val.as<float>();
+        }
     };
 
-} 
+}

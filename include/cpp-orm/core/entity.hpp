@@ -2,6 +2,7 @@
 #include "column.hpp"
 #include "extractors.hpp"
 #include "traits.hpp"
+#include "../database.hpp"
 #include <sstream>
 #include <vector>
 #include <iostream>
@@ -53,6 +54,8 @@ namespace orm {
             return sql.str();
         }
         
+        // ===== Методы с любым Connection (старые) =====
+        
         template<typename Connection>
         void insert(Connection& conn) {
             auto& self = static_cast<Derived&>(*this);
@@ -80,7 +83,7 @@ namespace orm {
 
             debug_print("INSERT", sql.str());
             
-            // conn.execute(sql.str());
+            conn.execute(sql.str());
         }
         
         template<typename Connection>
@@ -112,7 +115,7 @@ namespace orm {
 
             debug_print("UPDATE", sql.str());
             
-            // conn.execute(sql.str());
+            conn.execute(sql.str());
         }
         
         template<typename Connection>
@@ -152,7 +155,52 @@ namespace orm {
 
             debug_print("REMOVE", sql.str());
 
-            // conn.execute(sql.str());
+            conn.execute(sql.str());
+        }
+        
+        // ===== Методы с дефолтным Database (новые, без conn) =====
+        
+        void insert() {
+            Database db;
+            insert(db);
+        }
+        
+        void update() {
+            Database db;
+            update(db);
+        }
+        
+        static std::vector<Derived> find(const std::string& where = "") {
+            Database db;
+            return find(db, where);
+        }
+        
+        void remove() {
+            Database db;
+            remove(db);
+        }
+        
+        static void create_table() {
+            Database db;
+            db.execute(create_table_sql());
+        }
+        
+        static std::vector<Derived> all() {
+            return find();
+        }
+        
+        static std::vector<Derived> find_by_id(const auto& id) {
+            Derived temp{};
+            std::string pk_name;
+            
+            temp.for_each_column([&](auto& col) {
+                using ColType = std::decay_t<decltype(col)>;
+                if constexpr (ColType::is_primary_key()) {
+                    pk_name = ColType::column_name();
+                }
+            });
+            
+            return find(std::string(pk_name) + " = " + to_sql_string(id));
         }
         
     private:
@@ -162,9 +210,6 @@ namespace orm {
                 if (i > 0) result << delimiter;
                 result << vec[i];
             }
-
-            debug_print("JOIN", result.str());
-
             return result.str();
         }
         
@@ -180,10 +225,7 @@ namespace orm {
                     );
                 }
             });
-
-            auto res = join(conditions, " AND ");
-
-            return res;
+            return join(conditions, " AND ");
         }
         
         template<typename T>
