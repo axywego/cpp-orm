@@ -4,7 +4,6 @@
 #include <type_traits>
 #include <tuple>
 #include <array>
-#include <string_view>
 
 namespace orm {
 
@@ -64,12 +63,12 @@ namespace orm {
 
     template<typename... Traits>
     struct extract_column_name {
-        static constexpr std::string_view value = "";
+        static constexpr const char* value = "";
         static constexpr bool has_value = false;
     };
-    template<std::string_view S, typename... Rest>
+    template<const char* S, typename... Rest>
     struct extract_column_name<ColumnName<S>, Rest...> {
-        static constexpr std::string_view value = S;
+        static constexpr const char* value = S;
         static constexpr bool has_value = true;
     };
     template<typename T, typename... Rest>
@@ -77,12 +76,12 @@ namespace orm {
 
     template<typename... Traits>
     struct extract_comment {
-        static constexpr std::string_view value = "";
+        static constexpr const char* value = "";
         static constexpr bool has_value = false;
     };
-    template<std::string_view S, typename... Rest>
+    template<const char* S, typename... Rest>
     struct extract_comment<Comment<S>, Rest...> {
-        static constexpr std::string_view value = S;
+        static constexpr const char* value = S;
         static constexpr bool has_value = true;
     };
     template<typename T, typename... Rest>
@@ -90,12 +89,12 @@ namespace orm {
 
     template<typename... Traits>
     struct extract_entity_name {
-        static constexpr std::string_view value = "";
+        static constexpr const char* value = "";
         static constexpr bool has_value = false;
     };
-    template<std::string_view S, typename... Rest>
+    template<const char* S, typename... Rest>
     struct extract_entity_name<Entity<S>, Rest...> {
-        static constexpr std::string_view value = S;
+        static constexpr const char* value = S;
         static constexpr bool has_value = true;
     };
     template<typename T, typename... Rest>
@@ -106,7 +105,7 @@ namespace orm {
         static constexpr auto values = std::tuple<>{};
         static constexpr bool has_value = false;
     };
-    template<typename E, std::string_view S, typename... Rest>
+    template<typename E, const char* S, typename... Rest>
     struct extract_enum_values<EnumValue<E, S>, Rest...> {
         static constexpr bool has_value = true;
         static constexpr auto values = std::tuple_cat(
@@ -122,11 +121,11 @@ namespace orm {
         using type = std::tuple<>;
         static constexpr bool has_value = false;
     };
-    template<std::string_view... Columns, typename... Rest>
+    template<const char*... Columns, typename... Rest>
     struct extract_indexes<Index<Columns...>, Rest...> {
         static constexpr bool has_value = true;
         using type = decltype(std::tuple_cat(
-            std::declval<std::tuple<std::array<std::string_view, sizeof...(Columns)>>>(),
+            std::declval<std::tuple<std::array<const char*, sizeof...(Columns)>>>(),
             std::declval<typename extract_indexes<Rest...>::type>()
         ));
     };
