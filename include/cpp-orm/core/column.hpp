@@ -6,6 +6,7 @@
 #include <utility>
 #include <tuple>
 #include <type_traits>
+#include <string_view>
 
 namespace orm {
 
@@ -52,21 +53,21 @@ namespace orm {
             return T{};
         }
 
-        static constexpr const char* column_name() {
+        static constexpr std::string_view column_name() {
             if constexpr (extract_column_name<Traits...>::has_value) {
                 return extract_column_name<Traits...>::value;
             }
             return "unnamed_column";
         }
 
-        static constexpr const char* comment() {
+        static constexpr std::string_view comment() {
             if constexpr (extract_comment<Traits...>::has_value) {
                 return extract_comment<Traits...>::value;
             }
             return "";
         }
 
-        static constexpr const char* sql_type() {
+        static std::string sql_type() {
             if constexpr (std::is_same_v<T, int>) {
                 if constexpr (has_trait<PrimaryKey, Traits...>::value 
                         && has_trait<AutoIncrement, Traits...>::value) {
@@ -95,7 +96,7 @@ namespace orm {
 
         static std::string column_sql() {
             std::string sql;
-            sql += column_name();
+            sql += std::string(column_name());
             sql += " ";
             sql += sql_type();
 
@@ -125,7 +126,7 @@ namespace orm {
 
     private:
         template<typename U>
-        static std::string format_sql_value(U val) {
+        static std::string format_sql_value(const U& val) {
             if constexpr (std::is_same_v<U, std::string>) {
                 return "'" + val + "'";
             }

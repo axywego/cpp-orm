@@ -6,6 +6,7 @@
 #include <sstream>
 #include <vector>
 #include <iostream>
+#include <string_view>
 
 namespace orm {
 
@@ -27,7 +28,7 @@ namespace orm {
         }
 
     public:
-        static constexpr const char* table_name() {
+        static constexpr std::string_view table_name() {
             return extract_entity_name<EntityTraits...>::value;
         }
         
@@ -54,8 +55,6 @@ namespace orm {
             return sql.str();
         }
         
-        // ===== Методы с любым Connection (старые) =====
-        
         template<typename Connection>
         void insert(Connection& conn) {
             auto& self = static_cast<Derived&>(*this);
@@ -74,7 +73,7 @@ namespace orm {
                     return;
                 }
                 
-                col_names.push_back(ColType::column_name());
+                col_names.push_back(std::string(ColType::column_name()));
                 col_values.push_back(to_sql_string(col.value));
             });
             
@@ -129,7 +128,7 @@ namespace orm {
             temp.for_each_column([&](auto& col) {
                 using ColType = std::decay_t<decltype(col)>;
                 if constexpr (ColType::is_selectable()) {
-                    select_cols.push_back(ColType::column_name());
+                    select_cols.push_back(std::string(ColType::column_name()));
                 }
             });
             
@@ -157,8 +156,6 @@ namespace orm {
 
             conn.execute(sql.str());
         }
-        
-        // ===== Методы с дефолтным Database (новые, без conn) =====
         
         void insert() {
             Database db;
@@ -196,11 +193,11 @@ namespace orm {
             temp.for_each_column([&](auto& col) {
                 using ColType = std::decay_t<decltype(col)>;
                 if constexpr (ColType::is_primary_key()) {
-                    pk_name = ColType::column_name();
+                    pk_name = std::string(ColType::column_name());
                 }
             });
             
-            return find(std::string(pk_name) + " = " + to_sql_string(id));
+            return find(pk_name + " = " + to_sql_string(id));
         }
         
     private:

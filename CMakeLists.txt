@@ -30,12 +30,12 @@ target_link_libraries(cpp-orm INTERFACE pqxx)
 
 option(ORM_DEBUG "Enable SQL debug output" OFF)
 
-# optional
-target_compile_definitions(cpp-orm INTERFACE ORM_DEBUG)
+# # optional
+# target_compile_definitions(cpp-orm INTERFACE ORM_DEBUG)
 
-option(BUILD_EXAMPLES "Build examples" ON)
+# option(BUILD_EXAMPLES "Build examples" ON)
 
-if(BUILD_EXAMPLES)
-    add_executable(example examples/main.cpp)
-    target_link_libraries(example PRIVATE cpp-orm::cpp-orm)
-endif()
+# if(BUILD_EXAMPLES)
+#     add_executable(example examples/main.cpp)
+#     target_link_libraries(example PRIVATE cpp-orm::cpp-orm)
+# endif()

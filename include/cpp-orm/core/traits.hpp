@@ -3,6 +3,7 @@
 #include <cstddef>
 #include <type_traits>
 #include <array>
+#include <string_view>
 
 namespace orm {
 
@@ -40,34 +41,31 @@ namespace orm {
         static constexpr auto value = V;
     };
 
-    template<const char* S>
+    template<std::string_view S>
     struct Comment {
-        static constexpr const char* text = S;
+        static constexpr std::string_view text = S;
     };
 
-    template<const char* S>
+    template<std::string_view S>
     struct ColumnName {
-        static constexpr const char* name = S;
+        static constexpr std::string_view name = S;
     };
 
-
-    template<typename E, const char* S>
+    template<typename E, std::string_view S>
     struct EnumValue {
         using enum_type = E;
-        static constexpr const char* string = S;
+        static constexpr std::string_view string = S;
     };
 
-
-    template<const char* Name>
+    template<std::string_view Name>
     struct Entity {
-        static constexpr const char* table_name = Name;
+        static constexpr std::string_view table_name = Name;
     };
 
-    template<const char*... Columns>
+    template<std::string_view... Columns>
     struct Index {
         static constexpr auto columns = std::array{Columns...};
     };
-
 
     template<typename T>
     struct OneToMany {
